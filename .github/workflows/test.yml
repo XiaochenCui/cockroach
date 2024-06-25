@@ -1,0 +1,48 @@
+name: test
+
+on:
+  push:
+    branches: [debug]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # the job will be killed and marked as "failed" after running for 2 hours
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+            wget https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
+            chmod +x bazelisk-linux-amd64
+            sudo ln -sf bazelisk-linux-amd64 /usr/local/bin/bazel
+
+      - name: Create .bazelrc.user file
+        run: |
+          touch .bazelrc.user
+          echo 'build --config=dev' >> .bazelrc.user
+          echo 'build --config=lintonbuild' >> .bazelrc.user
+          echo 'test --test_tmpdir=/tmp/cockroach' >> .bazelrc.user
+          echo 'build --remote_cache=http://127.0.0.1:9867' >> .bazelrc.user
+
+      - name: Run dev doctor
+        shell: bash
+        run: ./dev doctor
+
+      - name: Run dev generate
+        shell: bash
+        run: ./dev generate
+
+      - name: Run dev lint
+        shell: bash
+        run: ./dev lint
+
+      - name: Run dev test
+        shell: bash
+        run: ./dev test
