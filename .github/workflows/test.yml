@@ -21,9 +21,10 @@ jobs:
         run: |
           wget https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
           chmod +x bazelisk-linux-amd64
-          sudo ln -sf bazelisk-linux-amd64 /usr/local/bin/bazel
+          sudo ln -sf $PWD/bazelisk-linux-amd64 /usr/local/bin/bazel
           echo $PATH
           whereis bazel
+          ls -lah /usr/local/bin/bazel
 
       - name: Create .bazelrc.user file
         run: |
